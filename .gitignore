@@ -1,0 +1,26 @@
+# PDF documents
+*.pdf
+
+# Compressed files
+*.zip
+*.tar.gz
+*.rar
+
+# Generated assets and temporary files
+assets/
+extracted_text.txt
+image_manifest.json
+*.mmd
+*.md
+!README.md
+!skills/**/SKILL.md
+!skills/**/*.md
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
