@@ -75,10 +75,16 @@ flowchart TB
    ```bash
    lark-cli auth login
    ```
-2. 确保本地拥有 Python 环境，并安装 `PyMuPDF`：
+2. 确保本地拥有 Python 环境，并安装 `PyMuPDF` 和 `python-dotenv`：
    ```bash
-   pip install PyMuPDF
+   pip install PyMuPDF python-dotenv
    ```
+3. （可选，推荐）配置高精度 MinerU 解析引擎 API Token。如果不配置，将默认平滑降级使用基础引擎（PyMuPDF）：
+   - 在项目根目录下创建一个 `.env` 文件。
+   - 填入你从 [MinerU 官网](https://mineru.net/apiManage/docs) 申请的 Token：
+     ```env
+     MINERU_TOKEN=你的_MinerU_API_Token
+     ```
 
 ### 导入 Skill
 

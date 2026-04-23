@@ -19,17 +19,15 @@ metadata:
 
 ## 2. 核心工作流 (V3 标准)
 
-### Step 1: 极致资源解析 (Advanced Extraction)
-- **双轨降级提取策略**：使用内置的 Python 脚本 `scripts/extract_pdf.py` 提取 PDF 纯文本及图片。该脚本具备智能路由能力：**如果系统已安装高精度解析工具 `MinerU`，则优先调用它；如果未安装或调用失败，则自动降级使用内置的 `PyMuPDF` 基础解析引擎。** 这确保了既能享受极致解析质量，又在普通环境下具有 100% 的自包含鲁棒性。
-- **元数据美化**：提取 PDF 纯净文件名，自动添加业务图标（如 `📄`, `📊`）。
-- **自动化命令序列**：
-  ```bash
-  # 运行内置的 PDF 智能提取脚本（自动选择最优引擎）
-  python skills/lark-research-analyst/scripts/extract_pdf.py "path/to/report.pdf" --output-dir "assets/images" --txt-path "extracted_text.txt" --manifest-path "image_manifest.json"
-  
-  # 创建飞书知识库文档
-  lark-cli wiki +node-create --space-id <目标space_id> --title "📄 <纯净PDF名称>" --obj-type docx
-  ```
+### Step 1: 极致资源解析 (Extract)
+1. **获取环境配置**：
+   - 检查当前环境是否存在 `.env` 文件，并尝试读取 `MINERU_TOKEN`。
+   - 如果不存在 `.env` 文件，提示用户需要配置该文件以获取更好的解析效果。
+2. **检测引擎与解析**：
+   - 智能检测运行环境中是否可用 MinerU 高精度解析引擎（如已配置 `MINERU_TOKEN`）。
+   - **如果配置了 MinerU Token**：使用精准解析 API (`https://mineru.net/api/v4/extract/task`)。通过 POST 请求提交 PDF 的在线 URL，`model_version` 选择 `vlm`，在 Header 中加入 `Authorization: Bearer <MINERU_TOKEN>`。随后异步轮询获取解析后的高精度纯文本、表格、公式和图片集（Zip包或Markdown结果）。
+   - **如果没有配置 MinerU Token**：平滑降级，调用基础引擎（如 `PyMuPDF` 等本地工具），从目标 PDF 中提取纯文本内容及高清图片。
+3. **输出物校验**：确保提取出完整的文字主干（Markdown 格式优先）和一系列图片资产，并放入本地临时缓存中备用。
 
 ### Step 2: 颗粒度级分层解读 (Granular Summarization)
 作为渐进式总结阅读专家，必须严格按照以下 5 层框架对研报进行分析。每一层生成的内容应存放在独立的 Markdown 块中，并注重**深度推演**与**交叉验证**。禁止空泛总结。必须明确指出具体的风险维度（如入口、执行、生态等）、核心逻辑推导过程、以及作者的隐藏假设。
